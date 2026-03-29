@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Medical Billing System</title>
+<style>
+body { font-family: Arial; padding: 10px; }
+input { margin: 5px; padding: 5px; width: 90%; }
+button { padding: 8px; margin: 5px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid black; padding: 5px; text-align: center; }
+</style>
+</head>
+
+<body>
+
+<h2>SHREE SIDDHIVINAYAK MEDICAL</h2>
+
+<h3>Owner Panel</h3>
+
+Bill No: <input type="text" id="billNo"><br>
+Date: <input type="date" id="date"><br>
+Patient Name: <input type="text" id="patient"><br>
+
+<table id="table">
+<tr>
+<th>Product</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</table>
+
+<button onclick="addRow()">Add Item</button>
+<button onclick="saveBill()">Save Bill</button>
+
+<hr>
+
+<h3>Customer Panel</h3>
+
+Enter Bill No: <input type="text" id="searchBill"><br>
+<button onclick="getBill()">View Bill</button>
+
+<div id="result"></div>
+
+<script>
+function addRow() {
+  let table = document.getElementById("table");
+  let row = table.insertRow();
+
+  row.insertCell(0).innerHTML = "<input>";
+  row.insertCell(1).innerHTML = "<input type='number'>";
+  row.insertCell(2).innerHTML = "<input type='number'>";
+  row.insertCell(3).innerHTML = "0";
+}
+
+function saveBill() {
+  let billNo = document.getElementById("billNo").value;
+  let date = document.getElementById("date").value;
+  let patient = document.getElementById("patient").value;
+
+  let table = document.getElementById("table");
+  let items = [];
+  let total = 0;
+
+  for (let i = 1; i < table.rows.length; i++) {
+    let product = table.rows[i].cells[0].children[0].value;
+    let qty = table.rows[i].cells[1].children[0].value;
+    let rate = table.rows[i].cells[2].children[0].value;
+    let amount = qty * rate;
+
+    total += amount;
+
+    items.push({product, qty, rate, amount});
+  }
+
+  let bill = {billNo, date, patient, items, total};
+
+  localStorage.setItem(billNo, JSON.stringify(bill));
+
+  alert("Bill Saved!");
+}
+
+function getBill() {
+  let billNo = document.getElementById("searchBill").value;
+  let data = localStorage.getItem(billNo);
+
+  if (!data) {
+    document.getElementById("result").innerHTML = "Bill Not Found";
+    return;
+  }
+
+  let bill = JSON.parse(data);
+
+  let html = "<h3>Bill No: "+bill.billNo+"</h3>";
+  html += "Date: "+bill.date+"<br>";
+  html += "Patient: "+bill.patient+"<br><br>";
+
+  html += "<table><tr><th>Product</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>";
+
+  bill.items.forEach(item => {
+    html += "<tr><td>"+item.product+"</td><td>"+item.qty+"</td><td>"+item.rate+"</td><td>"+item.amount+"</td></tr>";
+  });
+
+  html += "</table><br>";
+  html += "<b>Total: ₹"+bill.total+"</b>";
+
+  document.getElementById("result").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
